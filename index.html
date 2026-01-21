@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Dreieck Rechner (WSW/SWS)</title>
+<style>
+body { font-family: Arial, sans-serif; background: linear-gradient(135deg,#667eea,#764ba2); display:flex; justify-content:center; padding-top:20px; }
+.box { background:white; padding:25px; border-radius:15px; width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.25); }
+h2 { text-align:center; margin-bottom:15px; }
+input, select, button { width:100%; padding:8px; margin:6px 0; }
+button { border:none; border-radius:8px; background:#6c63ff; color:white; font-size:16px; cursor:pointer; }
+button:hover { background:#554fd8; }
+.result { margin-top:15px; font-weight:bold; white-space:pre-line; }
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>Dreieck Rechner</h2>
+
+<p><b>Schemata wählen</b></p>
+<select id="schema">
+<option value="WSW">WSW (Winkel-Seite-Winkel)</option>
+<option value="SWS">SWS (Seite-Winkel-Seite)</option>
+</select>
+
+<p><b>Winkel (°)</b></p>
+<input id="alpha" type="number" placeholder="α">
+<input id="beta" type="number" placeholder="β">
+<input id="gamma" type="number" placeholder="γ">
+
+<p><b>Seiten (cm)</b></p>
+<input id="a" type="number" placeholder="a">
+<input id="b" type="number" placeholder="b">
+<input id="c" type="number" placeholder="c">
+
+<button onclick="calculateTriangle()">Berechnen</button>
+<div class="result" id="result"></div>
+</div>
+
+<script>
+function toRad(deg){return deg*Math.PI/180;}
+function toDeg(rad){return rad*180/Math.PI;}
+
+function calculateTriangle(){
+    let schema = document.getElementById('schema').value;
+    let alpha = +document.getElementById('alpha').value;
+    let beta  = +document.getElementById('beta').value;
+    let gamma = +document.getElementById('gamma').value;
+    let a = +document.getElementById('a').value;
+    let b = +document.getElementById('b').value;
+    let c = +document.getElementById('c').value;
+
+    let result = document.getElementById('result');
+
+    // Berechnung SWS
+    if(schema==="SWS"){
+        if(alpha>0 && b>0 && c>0){
+            a = Math.sqrt(b*b + c*c - 2*b*c*Math.cos(toRad(alpha)));
+            beta = toDeg(Math.acos((a*a + c*c - b*b)/(2*a*c)));
+            gamma = 180 - alpha - beta;
+        } else if(beta>0 && a>0 && c>0){
+            b = Math.sqrt(a*a + c*c - 2*a*c*Math.cos(toRad(beta)));
+            alpha = toDeg(Math.acos((b*b + c*c - a*a)/(2*b*c)));
+            gamma = 180 - alpha - beta;
+        } else if(gamma>0 && a>0 && b>0){
+            c = Math.sqrt(a*a + b*b - 2*a*b*Math.cos(toRad(gamma)));
+            alpha = toDeg(Math.acos((b*b + c*c - a*a)/(2*b*c)));
+            beta = 180 - alpha - gamma;
+        } else { result.textContent="Ungültige Eingaben für SWS"; return; }
+    }
+
+    // Berechnung WSW
+    else if(schema==="WSW"){
+        if(alpha>0 && beta>0 && c>0){
+            gamma = 180 - alpha - beta;
+            a = c * Math.sin(toRad(alpha))/Math.sin(toRad(gamma));
+            b = c * Math.sin(toRad(beta))/Math.sin(toRad(gamma));
+        } else if(alpha>0 && gamma>0 && b>0){
+            beta = 180 - alpha - gamma;
+            a = b * Math.sin(toRad(alpha))/Math.sin(toRad(beta));
+            c = b * Math.sin(toRad(gamma))/Math.sin(toRad(beta));
+        } else if(beta>0 && gamma>0 && a>0){
+            alpha = 180 - beta - gamma;
+            b = a * Math.sin(toRad(beta))/Math.sin(toRad(alpha));
+            c = a * Math.sin(toRad(gamma))/Math.sin(toRad(alpha));
+        } else { result.textContent="Ungültige Eingaben für WSW"; return; }
+    }
+
+    // Typ nach Seiten
+    let typeBySides='';
+    if(Math.abs(a-b)<0.01 && Math.abs(b-c)<0.01) typeBySides='gleichseitig';
+    else if(Math.abs(a-b)<0.01 || Math.abs(a-c)<0.01 || Math.abs(b-c)<0.01) typeBySides='gleichschenklig';
+    else typeBySides='ungleichseitig';
+
+    // Typ nach Winkeln
+    let typeByAngles='';
+    if(Math.abs(alpha-90)<0.01 || Math.abs(beta-90)<0.01 || Math.abs(gamma-90)<0.01) typeByAngles='rechtwinklig';
+    else if(alpha>90||beta>90||gamma>90) typeByAngles='stumpfwinklig';
+    else typeByAngles='spitzwinklig';
+
+    result.textContent=`Dreieck: ${typeBySides}, ${typeByAngles}\nWinkel: α=${alpha.toFixed(1)}°, β=${beta.toFixed(1)}°, γ=${gamma.toFixed(1)}°\nSeiten: a=${a.toFixed(2)}, b=${b.toFixed(2)}, c=${c.toFixed(2)}`;
+}
+
+// Beispielwerte
+document.getElementById('schema').value="WSW";
+document.getElementById('alpha').value=40;
+document.getElementById('beta').value=70;
+document.getElementById('c').value=4.8;
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
