@@ -4,184 +4,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dreieck Rechner (WSW/SWS)</title>
-<style>
-* { box-sizing: border-box; }
-body { font-family: Arial, sans-serif; background: linear-gradient(135deg,#667eea,#764ba2); display:flex; justify-content:center; padding-top:20px; }
-.box { background:white; padding:25px; border-radius:15px; width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.25); }
-h2 { text-align:center; margin-bottom:15px; }
-input, select, button { width:100%; padding:8px; margin:6px 0; }
-button { border:none; border-radius:8px; background:#6c63ff; color:white; font-size:16px; cursor:pointer; }
-button:hover { background:#554fd8; }
-.result { margin-top:15px; font-weight:bold; white-space:pre-line; }
-#triangleWrap { margin-top:15px; display:none; }
-#triangleCanvas { width:100%; height:auto; display:block; }
-@media (max-width: 480px) {
-  body { padding:16px 12px; }
-  .box { width:100%; padding:18px; border-radius:12px; }
-  input, select, button { padding:10px; margin:8px 0; }
-  button { font-size:15px; }
-}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="box">
-<h2>Dreieck Rechner</h2>
+<div class="header">
+  <h2>Dreieck Rechner</h2>
+  <p class="subtitle">WSW / SWS – schnell, übersichtlich, sauber</p>
+</div>
 
-<p><b>Schemata wählen</b></p>
-<select id="schema">
-<option value="WSW">WSW (Winkel-Seite-Winkel)</option>
-<option value="SWS">SWS (Seite-Winkel-Seite)</option>
-</select>
+<div class="section">
+  <p class="section-title">Schemata</p>
+  <label class="field">
+    <span class="field-label">Schema wählen</span>
+    <select id="schema">
+  <option value="WSW">WSW (Winkel-Seite-Winkel)</option>
+  <option value="SWS">SWS (Seite-Winkel-Seite)</option>
+    </select>
+  </label>
+</div>
 
-<p><b>Winkel (°)</b></p>
-<input id="alpha" type="number" placeholder="α">
-<input id="beta" type="number" placeholder="β">
-<input id="gamma" type="number" placeholder="γ">
+<div class="section">
+  <p class="section-title">Winkel (°)</p>
+  <div class="grid-3">
+    <label class="field">
+      <span class="field-label">α (Alpha)</span>
+      <input id="alpha" type="number" placeholder="α">
+    </label>
+    <label class="field">
+      <span class="field-label">β (Beta)</span>
+      <input id="beta" type="number" placeholder="β">
+    </label>
+    <label class="field">
+      <span class="field-label">γ (Gamma)</span>
+      <input id="gamma" type="number" placeholder="γ">
+    </label>
+  </div>
+</div>
 
-<p><b>Seiten (cm)</b></p>
-<input id="a" type="number" placeholder="a">
-<input id="b" type="number" placeholder="b">
-<input id="c" type="number" placeholder="c">
+<div class="section">
+  <p class="section-title">Seiten (cm)</p>
+  <div class="grid-3">
+    <label class="field">
+      <span class="field-label">a (Seite)</span>
+      <input id="a" type="number" placeholder="a">
+    </label>
+    <label class="field">
+      <span class="field-label">b (Seite)</span>
+      <input id="b" type="number" placeholder="b">
+    </label>
+    <label class="field">
+      <span class="field-label">c (Seite)</span>
+      <input id="c" type="number" placeholder="c">
+    </label>
+  </div>
+</div>
 
-<button onclick="calculateTriangle()">Berechnen</button>
+<button id="calculateBtn">Berechnen</button>
 <div class="result" id="result"></div>
 <div id="triangleWrap">
   <canvas id="triangleCanvas" width="320" height="240"></canvas>
 </div>
 </div>
 
-<script>
-function toRad(deg){return deg*Math.PI/180;}
-function toDeg(rad){return rad*180/Math.PI;}
-
-function calculateTriangle(){
-    let schema = document.getElementById('schema').value;
-    let alpha = +document.getElementById('alpha').value;
-    let beta  = +document.getElementById('beta').value;
-    let gamma = +document.getElementById('gamma').value;
-    let a = +document.getElementById('a').value;
-    let b = +document.getElementById('b').value;
-    let c = +document.getElementById('c').value;
-
-    let result = document.getElementById('result');
-    document.getElementById('triangleWrap').style.display = "none";
-
-    // Berechnung SWS
-    if(schema==="SWS"){
-        if(alpha>0 && b>0 && c>0){
-            a = Math.sqrt(b*b + c*c - 2*b*c*Math.cos(toRad(alpha)));
-            beta = toDeg(Math.acos((a*a + c*c - b*b)/(2*a*c)));
-            gamma = 180 - alpha - beta;
-        } else if(beta>0 && a>0 && c>0){
-            b = Math.sqrt(a*a + c*c - 2*a*c*Math.cos(toRad(beta)));
-            alpha = toDeg(Math.acos((b*b + c*c - a*a)/(2*b*c)));
-            gamma = 180 - alpha - beta;
-        } else if(gamma>0 && a>0 && b>0){
-            c = Math.sqrt(a*a + b*b - 2*a*b*Math.cos(toRad(gamma)));
-            alpha = toDeg(Math.acos((b*b + c*c - a*a)/(2*b*c)));
-            beta = 180 - alpha - gamma;
-        } else { result.textContent="Ungültige Eingaben für SWS"; return; }
-    }
-
-    // Berechnung WSW
-    else if(schema==="WSW"){
-        if(alpha>0 && beta>0 && c>0){
-            gamma = 180 - alpha - beta;
-            a = c * Math.sin(toRad(alpha))/Math.sin(toRad(gamma));
-            b = c * Math.sin(toRad(beta))/Math.sin(toRad(gamma));
-        } else if(alpha>0 && gamma>0 && b>0){
-            beta = 180 - alpha - gamma;
-            a = b * Math.sin(toRad(alpha))/Math.sin(toRad(beta));
-            c = b * Math.sin(toRad(gamma))/Math.sin(toRad(beta));
-        } else if(beta>0 && gamma>0 && a>0){
-            alpha = 180 - beta - gamma;
-            b = a * Math.sin(toRad(beta))/Math.sin(toRad(alpha));
-            c = a * Math.sin(toRad(gamma))/Math.sin(toRad(alpha));
-        } else { result.textContent="Ungültige Eingaben für WSW"; return; }
-    }
-    // Winkel muessen positiv sein und Summe 180
-    if(!isFinite(alpha) || !isFinite(beta) || !isFinite(gamma) || alpha <= 0 || beta <= 0 || gamma <= 0 || Math.abs((alpha + beta + gamma) - 180) > 0.1){
-        result.textContent="Ungueltige Eingaben fuer Winkel";
-        return;
-    }
-
-    // Typ nach Seiten
-    let typeBySides='';
-    if(Math.abs(a-b)<0.01 && Math.abs(b-c)<0.01) typeBySides='gleichseitig';
-    else if(Math.abs(a-b)<0.01 || Math.abs(a-c)<0.01 || Math.abs(b-c)<0.01) typeBySides='gleichschenklig';
-    else typeBySides='ungleichseitig';
-
-    // Typ nach Winkeln
-    let typeByAngles='';
-    if(Math.abs(alpha-90)<0.01 || Math.abs(beta-90)<0.01 || Math.abs(gamma-90)<0.01) typeByAngles='rechtwinklig';
-    else if(alpha>90||beta>90||gamma>90) typeByAngles='stumpfwinklig';
-    else typeByAngles='spitzwinklig';
-
-    result.textContent=`Dreieck: ${typeBySides}, ${typeByAngles}\nWinkel: α=${alpha.toFixed(1)}°, β=${beta.toFixed(1)}°, γ=${gamma.toFixed(1)}°\nSeiten: a=${a.toFixed(2)}, b=${b.toFixed(2)}, c=${c.toFixed(2)}`;
-    drawTriangle(a, b, c, alpha, beta, gamma);
-}
-
-function drawTriangle(a, b, c, alpha, beta, gamma){
-    let wrap = document.getElementById('triangleWrap');
-    let canvas = document.getElementById('triangleCanvas');
-    let ctx = canvas.getContext('2d');
-    let w = canvas.width;
-    let h = canvas.height;
-    let pad = 24;
-
-    // Coordinates: A(0,0), B(c,0), C(x,y)
-    let x = (b*b + c*c - a*a) / (2*c);
-    let ySq = Math.max(0, b*b - x*x);
-    let y = Math.sqrt(ySq);
-
-    let minX = Math.min(0, c, x);
-    let maxX = Math.max(0, c, x);
-    let minY = Math.min(0, 0, y);
-    let maxY = Math.max(0, 0, y);
-
-    let scale = Math.min((w - 2*pad) / (maxX - minX || 1), (h - 2*pad) / (maxY - minY || 1));
-    let offsetX = pad - minX * scale;
-    let offsetY = pad - minY * scale;
-
-    let Ax = 0 * scale + offsetX;
-    let Ay = 0 * scale + offsetY;
-    let Bx = c * scale + offsetX;
-    let By = 0 * scale + offsetY;
-    let Cx = x * scale + offsetX;
-    let Cy = y * scale + offsetY;
-
-    ctx.clearRect(0, 0, w, h);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#5a54d6";
-    ctx.fillStyle = "#222";
-    ctx.font = "14px Arial, sans-serif";
-
-    ctx.beginPath();
-    ctx.moveTo(Ax, Ay);
-    ctx.lineTo(Bx, By);
-    ctx.lineTo(Cx, Cy);
-    ctx.closePath();
-    ctx.stroke();
-
-    // Labels for vertices (angles)
-    ctx.fillText("alpha", Ax - 6, Ay - 6);
-    ctx.fillText("beta", Bx + 6, By - 6);
-    ctx.fillText("gamma", Cx + 6, Cy + 6);
-
-    // Labels for sides
-    ctx.fillText("c", (Ax + Bx) / 2, (Ay + By) / 2 - 6);
-    ctx.fillText("b", (Ax + Cx) / 2 - 10, (Ay + Cy) / 2);
-    ctx.fillText("a", (Bx + Cx) / 2 + 6, (By + Cy) / 2);
-
-    wrap.style.display = "block";
-}
-// Beispielwerte
-document.getElementById('schema').value="WSW";
-document.getElementById('alpha').value=40;
-document.getElementById('beta').value=70;
-document.getElementById('c').value=4.8;
-</script>
+<script type="module" src="js/main.js"></script>
 
 </body>
 </html>
