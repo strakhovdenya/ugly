@@ -145,8 +145,8 @@ button:hover {
   input,
   select,
   button {
-    padding: 10px;
-    margin: 8px 0;
+    padding: 8px;
+    margin: 6px 0;
   }
 
   button {
@@ -154,6 +154,16 @@ button:hover {
   }
 
   .grid-3 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .field-label {
+    font-size: 11px;
+  }
+
+  input,
+  select {
+    font-size: 13px;
   }
 }
