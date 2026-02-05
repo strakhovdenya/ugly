@@ -35,6 +35,20 @@ export function calculateTriangle(input) {
     } else {
       return { error: "Ungültige Eingaben für WSW" };
     }
+  } else if (schema === "SSS") {
+    if (a > 0 && b > 0 && c > 0) {
+      if (a + b <= c || a + c <= b || b + c <= a) {
+        return { error: "Ungültige Eingaben für SSS" };
+      }
+      const cosAlpha = (b * b + c * c - a * a) / (2 * b * c);
+      const cosBeta = (a * a + c * c - b * b) / (2 * a * c);
+      const clamp = (v) => Math.min(1, Math.max(-1, v));
+      alpha = toDeg(Math.acos(clamp(cosAlpha)));
+      beta = toDeg(Math.acos(clamp(cosBeta)));
+      gamma = 180 - alpha - beta;
+    } else {
+      return { error: "Ungültige Eingaben für SSS" };
+    }
   } else {
     return { error: "Ungültiges Schema" };
   }
