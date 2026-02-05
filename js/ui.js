@@ -1,7 +1,18 @@
 ﻿import { calculateTriangle } from "./triangle-calc.js";
 import { drawTriangle } from "./triangle-draw.js";
+import { validateUiSSS } from "./triangle-schemas-ui/sss.js";
+import { validateUiSSW } from "./triangle-schemas-ui/ssw.js";
+import { validateUiSWS } from "./triangle-schemas-ui/sws.js";
+import { validateUiWSW } from "./triangle-schemas-ui/wsw.js";
 
 const byId = (id) => document.getElementById(id);
+
+const schemaUiValidators = {
+  SSS: validateUiSSS,
+  SSW: validateUiSSW,
+  SWS: validateUiSWS,
+  WSW: validateUiWSW,
+};
 
 export function init() {
   const el = {
@@ -28,14 +39,6 @@ export function init() {
     b: +el.b.value,
     c: +el.c.value
   });
-
-  const countFilled = () => {
-    const fields = [el.alpha, el.beta, el.gamma, el.a, el.b, el.c];
-    return fields.filter((f) => f.value.trim() !== "").length;
-  };
-
-  const countSides = () => [el.a, el.b, el.c].filter((f) => f.value.trim() !== "").length;
-  const countAngles = () => [el.alpha, el.beta, el.gamma].filter((f) => f.value.trim() !== "").length;
 
   const showError = (msg) => {
     el.result.textContent = msg;
@@ -81,33 +84,22 @@ export function init() {
   };
 
   const handle = () => {
-    const schema = el.schema.value;
-    const sidesCount = countSides();
-    const anglesCount = countAngles();
+    const values = readValues();
+    const schema = values.schema;
 
-    if (schema === "SSS") {
-      if (sidesCount !== 3) {
-        showError("Für SSS: genau 3 Seiten eingeben.");
-        return;
-      }
-    } else if (schema === "SSW") {
-      if (sidesCount !== 2 || anglesCount !== 1) {
-        showError("Für SsW: genau 2 Seiten und 1 Winkel eingeben.");
-        return;
-      }
-    } else {
-      const filled = countFilled();
-      if (filled !== 3) {
-        if (schema === "SWS") {
-          showError("Für SWS: genau 2 Seiten und 1 Winkel eingeben.");
-        } else {
-          showError("Für WSW: genau 2 Winkel und 1 Seite eingeben.");
-        }
-        return;
-      }
+    const validator = schemaUiValidators[schema];
+    if (!validator) {
+      showError("Ungültiges Schema");
+      return;
     }
 
-    const res = calculateTriangle(readValues());
+    const validation = validator(values);
+    if (!validation || validation.ok !== true) {
+      showError(validation?.error || "Ungültige Eingaben");
+      return;
+    }
+
+    const res = calculateTriangle(values);
     if (res.error) {
       showError(res.error);
       return;
