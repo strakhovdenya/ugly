@@ -86,6 +86,20 @@ button {
   font-weight: 600;
 }
 
+.wsw-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #2a2a5a;
+  font-weight: 600;
+}
+
+.wsw-error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #b00020;
+  font-weight: 600;
+}
+
 input,
 select {
   border: 1px solid #7c7c7c;
@@ -107,6 +121,17 @@ input:not(:placeholder-shown) {
   border-color: #6c63ff;
 }
 
+input:disabled {
+  opacity: 0.45;
+  background: #f2f2f2;
+  cursor: not-allowed;
+}
+
+input.field-error {
+  border-color: #b00020;
+  background: #ffe9ed;
+}
+
 button {
   border: none;
   border-radius: 10px;
@@ -119,6 +144,11 @@ button {
 
 button:hover {
   background: linear-gradient(135deg, #5b54f0, #4338ca);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .result {
