@@ -53,6 +53,8 @@ export function init() {
 
     if (el.schema.value === "SSS") {
       hint.textContent = "SSS: 3 Seiten eingeben. Winkel werden berechnet.";
+    } else if (el.schema.value === "SSW") {
+      hint.textContent = "SsW: 2 Seiten und 1 Winkel eingeben (Winkel an einer Seite, nicht zwischen den Seiten).";
     } else if (el.schema.value === "SWS") {
       hint.textContent = "SWS: 2 Seiten + 1 Winkel eingeben.";
     } else {
@@ -86,6 +88,11 @@ export function init() {
     if (schema === "SSS") {
       if (sidesCount !== 3) {
         showError("Für SSS: genau 3 Seiten eingeben.");
+        return;
+      }
+    } else if (schema === "SSW") {
+      if (sidesCount !== 2 || anglesCount !== 1) {
+        showError("Für SsW: genau 2 Seiten und 1 Winkel eingeben.");
         return;
       }
     } else {
