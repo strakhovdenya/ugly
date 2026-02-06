@@ -30,6 +30,90 @@ const parseNumber = (raw) => {
   return { empty: false, valid: true, value };
 };
 
+const initCustomSelect = (selectEl, triggerEl, menuEl) => {
+  if (!selectEl || !triggerEl || !menuEl) return null;
+  const wrapper = triggerEl.closest(".select-wrap");
+  const options = Array.from(selectEl.options);
+
+  const updateTrigger = () => {
+    const current = selectEl.selectedOptions[0];
+    triggerEl.textContent = current ? current.textContent : "—";
+  };
+
+  const renderOptions = () => {
+    menuEl.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "select-option";
+      btn.setAttribute("role", "option");
+      btn.dataset.value = opt.value;
+      btn.textContent = opt.textContent;
+      if (opt.value === selectEl.value) {
+        btn.setAttribute("aria-selected", "true");
+      }
+      menuEl.appendChild(btn);
+    });
+  };
+
+  const open = () => {
+    wrapper.classList.add("open");
+    triggerEl.setAttribute("aria-expanded", "true");
+  };
+
+  const close = () => {
+    wrapper.classList.remove("open");
+    triggerEl.setAttribute("aria-expanded", "false");
+  };
+
+  const toggle = () => {
+    if (wrapper.classList.contains("open")) {
+      close();
+    } else {
+      open();
+    }
+  };
+
+  triggerEl.addEventListener("click", (event) => {
+    event.preventDefault();
+    toggle();
+  });
+
+  menuEl.addEventListener("click", (event) => {
+    const option = event.target.closest(".select-option");
+    if (!option) return;
+    const value = option.dataset.value;
+    if (!value) return;
+    selectEl.value = value;
+    selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+    updateTrigger();
+    renderOptions();
+    close();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!wrapper.contains(event.target)) {
+      close();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      close();
+    }
+  });
+
+  selectEl.addEventListener("change", () => {
+    updateTrigger();
+    renderOptions();
+  });
+
+  renderOptions();
+  updateTrigger();
+  triggerEl.setAttribute("aria-expanded", "false");
+  return { updateTrigger, renderOptions, close };
+};
+
 export function init() {
   const el = {
     schema: byId("schema"),
@@ -113,9 +197,13 @@ export function init() {
       `\nWinkel: α=${res.alpha.toFixed(1)}°, β=${res.beta.toFixed(1)}°, γ=${res.gamma.toFixed(1)}°` +
       `\nSeiten: a=${res.a.toFixed(2)}, b=${res.b.toFixed(2)}, c=${res.c.toFixed(2)}`;
 
-    drawTriangle(el.canvas, res.a, res.b, res.c);
     el.wrap.style.display = "block";
+    requestAnimationFrame(() => {
+      drawTriangle(el.canvas, res.a, res.b, res.c);
+    });
   };
+
+  const schemaSelectUi = initCustomSelect(el.schema, byId("schemaTrigger"), byId("schemaMenu"));
 
   const wswController = createWswController({
     el,
@@ -243,6 +331,9 @@ export function init() {
     el.c.value = "";
     el.result.textContent = "";
     el.wrap.style.display = "none";
+    if (schemaSelectUi) {
+      schemaSelectUi.updateTrigger();
+    }
 
     wswController.reset();
     swsController.reset();
@@ -271,6 +362,9 @@ export function init() {
 
   setSchemaHint();
   applySchemaVisibility();
+  if (schemaSelectUi) {
+    schemaSelectUi.updateTrigger();
+  }
   wswController.update();
   swsController.update();
   sswController.update();

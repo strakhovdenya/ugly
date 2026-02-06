@@ -18,12 +18,16 @@
   <p class="section-title">Schemata</p>
   <label class="field">
     <span class="field-label">Schema wählen</span>
-    <select id="schema">
+    <div class="select-wrap" data-select="schema">
+      <select id="schema" class="native-select">
   <option value="WSW">WSW (Winkel-Seite-Winkel)</option>
   <option value="SWS">SWS (Seite-Winkel-Seite)</option>
   <option value="SSS">SSS (Seite-Seite-Seite)</option>
   <option value="SSW">SsW (Seite-Seite-Winkel)</option>
-    </select>
+      </select>
+      <button class="select-trigger" type="button" id="schemaTrigger" aria-haspopup="listbox" aria-expanded="false"></button>
+      <div class="select-menu" id="schemaMenu" role="listbox" aria-label="Schema wählen"></div>
+    </div>
   </label>
 </div>
 
